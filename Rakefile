@@ -5,7 +5,7 @@ RSpec::Core::RakeTask.new(:test)
 
 desc "Launch the Ruby Code++ Application"
 task :run do
-  ruby "notepadpp.rb"
+  ruby "notepad++.rb"
 end
 
 desc "Check code compliance via RuboCop linter"
