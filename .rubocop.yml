@@ -1,0 +1,15 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 3.2
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'db/**/*'
+
+Metrics/MethodLength:
+  Max: 40
+  Description: 'Allow slightly longer methods for detailed GUI window canvas initialization scripts.'
+
+Style/Documentation:
+  Enabled: false
