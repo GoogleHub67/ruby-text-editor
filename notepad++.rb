@@ -8,7 +8,7 @@ class FullNotepadPlusPlus
     
     @tabs = {} 
     @tab_counter = 0
-    @current_theme = :dark # Options: :light, :dark, :monokai
+    @current_theme = :dark
 
     setup_themes
     create_menu
@@ -16,14 +16,12 @@ class FullNotepadPlusPlus
     create_find_replace_drawer
     create_main_workspace
     
-    # Initialize workspace with a default canvas
     new_tab
   end
 
   def setup_themes
     TkTkwin.theme_use('clam') rescue nil
     
-    # Palette definition grids
     @themes = {
       dark:    { bg: '#1E1E1E', fg: '#D4D4D4', line_bg: '#252526', line_fg: '#858585', keyword: '#569CD6', string: '#CE9178', comment: '#6A9955' },
       light:   { bg: '#FFFFFF', fg: '#000000', line_bg: '#F0F0F0', line_fg: '#A0A0A0', keyword: '#0000FF', string: '#A31515', comment: '#008000' },
@@ -36,7 +34,6 @@ class FullNotepadPlusPlus
     menu_bar = TkMenu.new(@root)
     @root.menu(menu_bar)
 
-    # File Controls
     file_menu = TkMenu.new(menu_bar, tearoff: false)
     file_menu.add('command', label: 'New File (Ctrl+N)', command: proc { new_tab })
     file_menu.add('command', label: 'Open File... (Ctrl+O)', command: proc { open_file })
@@ -44,13 +41,11 @@ class FullNotepadPlusPlus
     file_menu.add('command', label: 'Close Tab (Ctrl+W)', command: proc { close_current_tab })
     menu_bar.add('cascade', menu: file_menu, label: 'File')
 
-    # Macro & Edit Controls
     edit_menu = TkMenu.new(menu_bar, tearoff: false)
     edit_menu.add('command', label: 'Find & Replace (Ctrl+F)', command: proc { toggle_find_drawer })
     edit_menu.add('command', label: 'Document Summary Statistics', command: proc { show_document_stats })
     menu_bar.add('cascade', menu: edit_menu, label: 'Search')
 
-    # Theme Switcher Matrix
     view_menu = TkMenu.new(menu_bar, tearoff: false)
     view_menu.add('radiobutton', label: 'VS Dark Theme', command: proc { change_theme(:dark) })
     view_menu.add('radiobutton', label: 'Classic Light Theme', command: proc { change_theme(:light) })
@@ -78,11 +73,9 @@ class FullNotepadPlusPlus
     @notebook.bind('<<NotebookTabChanged>>') { update_editor_environment }
   end
 
-  # Advanced Tab Factory producing Line Tracks and Canvas elements side-by-side
   def new_tab(title = "untitled.#{@tab_counter += 1}", content = "")
     tab_frame = Tk::Tile::Frame.new(@notebook)
     
-    # 1. Line Numbers Canvas column
     line_canvas = TkCanvas.new(tab_frame) do
       width 45
       borderwidth 0
@@ -90,10 +83,8 @@ class FullNotepadPlusPlus
     end
     line_canvas.pack(side: 'left', fill: 'y')
 
-    # 2. Main Scrollbar
     scrollbar = Tk::Tile::Scrollbar.new(tab_frame).pack(side: 'right', fill: 'y')
 
-    # 3. Text Area
     text_area = TkText.new(tab_frame) do
       wrap 'none'
       undo true
@@ -102,11 +93,9 @@ class FullNotepadPlusPlus
     end
     text_area.pack(side: 'left', fill: 'both', expand: true)
     
-    # Sync scroll hooks
     text_area.yscrollbar(scrollbar)
     text_area.insert('1.0', content)
 
-    # Attach live parsing callbacks
     text_area.bind('KeyRelease') { sync_line_numbers(text_area, line_canvas); apply_highlighter(text_area) }
     text_area.bind('ButtonRelease') { update_editor_environment }
 
@@ -115,12 +104,10 @@ class FullNotepadPlusPlus
 
     @tabs[tab_frame.path] = { text_area: text_area, line_canvas: line_canvas, file_path: nil }
     
-    # Initial paint pass
     change_theme(@current_theme)
     sync_line_numbers(text_area, line_canvas)
   end
 
-  # Dynamically redraws the sidebar line counters
   def sync_line_numbers(txt, canvas)
     canvas.delete('all')
     theme = @themes[@current_theme]
@@ -129,9 +116,9 @@ class FullNotepadPlusPlus
     loop do
       pos = txt.index("#{i}.0")
       dline = txt.dlineinfo(pos)
-      break unless dline # Stop drawing if we reach past viewport limits
+      break unless dline
       
-      y = dline[1]
+      y = dline
       canvas.create(TkcText, 35, y + 2, text: i.to_s, anchor: 'ne', fill: theme[:line_fg], font: @code_font)
       i += 1
     end
@@ -141,28 +128,23 @@ class FullNotepadPlusPlus
     theme = @themes[@current_theme]
     ['kw', 'str', 'cmt'].each { |tag| txt.tag_remove(tag, '1.0', 'end') }
     
-    # Setup color profiles matching active theme variables
     TkTextTag.new(txt, 'kw') { foreground theme[:keyword]; font TkFont.new(family: "Consolas", size: 11, weight: 'bold') }
     TkTextTag.new(txt, 'cmt') { foreground theme[:comment] }
     TkTextTag.new(txt, 'str') { foreground theme[:string] }
 
     raw = txt.get('1.0', 'end')
     
-    # Match strings
     raw.scan(/(["'])(?:(?=(\\?))\2.)*?\1/) do
       txt.tag_add('str', "1.0 + #{Regexp.last_match.begin(0)} chars", "1.0 + #{Regexp.last_match.end(0)} chars")
     end
-    # Match primary development syntax keywords
     raw.scan(/\b(def|class|end|if|else|return|require|yield|module|while|for)\b/) do
       txt.tag_add('kw', "1.0 + #{Regexp.last_match.begin(0)} chars", "1.0 + #{Regexp.last_match.end(0)} chars")
     end
-    # Track inline logs and comments
     raw.scan(/#.*/) do
       txt.tag_add('cmt', "1.0 + #{Regexp.last_match.begin(0)} chars", "1.0 + #{Regexp.last_match.end(0)} chars")
     end
   end
 
-  # Swaps entire IDE environment palettes on the fly
   def change_theme(theme_key)
     @current_theme = theme_key
     theme = @themes[theme_key]
@@ -190,12 +172,11 @@ class FullNotepadPlusPlus
 
     Tk.messageBox(
       title: 'Document Statistics',
-      message: "Total Character Count: #{char_count}\nWords Tracked: #{word_count}\nTotal File Lines: #{line_count}",
+      message: "Total Characters: #{char_count}\nWords Tracked: #{word_count}\nTotal Lines: #{line_count}",
       type: 'ok', icon: 'info'
     )
   end
 
-  # Basic Search System Execution
   def execute_global_search
     info = current_tab_info
     return unless info
