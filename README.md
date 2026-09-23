@@ -1,33 +1,45 @@
 # RubyCode++ Professional Text Editor
 
-A modern, light, cross-platform **Tabbed Source Code Text Editor** built using Ruby and the native Tk GUI framework toolkit ecosystem.
+A clean, cross-platform **Tabbed Code Text Editor** built using Ruby and the native Tk GUI framework canvas toolkit.
 
 ## 🛠️ System Prerequisites
 
-Your operating system must have a valid underlying **Tcl/Tk library installation** present before installing the Ruby library wrapper:
+Your machine must have native **Tcl/Tk core engine binaries** installed before running the Ruby project gems:
 
 *   **macOS**: `brew install tcl-tk`
 *   **Linux (Ubuntu/Debian)**: `sudo apt-get install tcl-dev tk-dev`
-*   **Windows**: Included by default via standard RubyInstaller packages.
+*   **Windows**: Handled natively using standard [RubyInstaller](https://rubyinstaller.org) packages.
 
-Official Project Documentation Resources:
-*   Windows Package Setup: [RubyInstaller Portal](https://rubyinstaller.org/ "RubyInstaller for Windows")
-*   Package Distribution: [RubyGems Library Service](https://rubygems.org/ "RubyGems.org")
+Official Development Links:
+*   Core Engine Packages: [RubyGems Portal](https://rubygems.org)
 
-## 🚀 Running the Project
+## 🚀 Getting Started
 
-1. Install project-level developer dependencies:
+Follow these steps sequentially in your terminal to download and launch the workspace application:
+
+1. Clone the project repository onto your local system:
+   ```bash
+   git clone https://github.com/GoogleHub67/ruby-text-editor
+   ```
+
+2. Navigate directly into the newly generated project workspace directory:
+   ```bash
+   cd ruby-text-editor
+   ```
+
+3. Gather all required application framework configuration dependencies:
    ```bash
    bundle install
    ```
-2. Start the interactive desktop application frame:
+
+4. Spin up the editor application canvas window frame:
    ```bash
    bundle exec rake run
    ```
 
 ## 🧪 Testing Environment
 
-Run style audits and verified unit tests via:
+Audit structural style configurations or verify application logic tests using:
 ```bash
 bundle exec rake
 ```
